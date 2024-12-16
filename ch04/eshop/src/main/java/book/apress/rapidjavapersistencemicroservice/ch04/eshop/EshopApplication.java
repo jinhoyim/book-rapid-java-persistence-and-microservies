@@ -1,6 +1,7 @@
 package book.apress.rapidjavapersistencemicroservice.ch04.eshop;
 
 import book.apress.rapidjavapersistencemicroservice.ch04.eshop.history.repository.PurchaseHistoryRepository;
+import book.apress.rapidjavapersistencemicroservice.ch04.eshop.orders.model.Customer;
 import book.apress.rapidjavapersistencemicroservice.ch04.eshop.orders.repository.CustomerRepository;
 import book.apress.rapidjavapersistencemicroservice.ch04.eshop.orders.repository.OrderRepository;
 import book.apress.rapidjavapersistencemicroservice.ch04.eshop.service.impl.CustomerService;
@@ -9,6 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+import java.util.List;
 
 @SpringBootApplication
 @Slf4j
@@ -47,5 +50,12 @@ public class EshopApplication implements CommandLineRunner {
         log.info("Products {}", productService.findAll());
         log.info("Orders {}", orderRepository.findAll());
         log.info("PurchaseHistory {}", purchaseHistoryRepository.findAll());
+
+        nPlusOneExample();
+    }
+
+    private void nPlusOneExample() {
+        List<Customer> customerList = customerRepository.findCustomersWithOrderDetails();
+        log.info("Customers List with Order Details {}", customerList);
     }
 }
