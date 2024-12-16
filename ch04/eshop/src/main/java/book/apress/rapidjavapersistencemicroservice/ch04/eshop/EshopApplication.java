@@ -2,6 +2,7 @@ package book.apress.rapidjavapersistencemicroservice.ch04.eshop;
 
 import book.apress.rapidjavapersistencemicroservice.ch04.eshop.history.repository.PurchaseHistoryRepository;
 import book.apress.rapidjavapersistencemicroservice.ch04.eshop.orders.model.Customer;
+import book.apress.rapidjavapersistencemicroservice.ch04.eshop.orders.model.dto.CustomerDto;
 import book.apress.rapidjavapersistencemicroservice.ch04.eshop.orders.repository.CustomerRepository;
 import book.apress.rapidjavapersistencemicroservice.ch04.eshop.orders.repository.OrderRepository;
 import book.apress.rapidjavapersistencemicroservice.ch04.eshop.service.impl.CustomerService;
@@ -52,6 +53,12 @@ public class EshopApplication implements CommandLineRunner {
         log.info("PurchaseHistory {}", purchaseHistoryRepository.findAll());
 
         nPlusOneExample();
+        constructorMappingExample();
+    }
+
+    private void constructorMappingExample() {
+        List<CustomerDto> customers = customerRepository.findAllCustomers();
+        log.info("Customers List with Constructors mapped query results {}", customers);
     }
 
     private void nPlusOneExample() {
