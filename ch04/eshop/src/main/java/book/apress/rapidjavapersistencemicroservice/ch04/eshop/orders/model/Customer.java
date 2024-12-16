@@ -1,5 +1,7 @@
 package book.apress.rapidjavapersistencemicroservice.ch04.eshop.orders.model;
 
+import book.apress.rapidjavapersistencemicroservice.ch04.eshop.converter.CustomerAddressConverter;
+import book.apress.rapidjavapersistencemicroservice.ch04.eshop.orders.model.type.CustomerAddress;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -26,6 +28,10 @@ public class Customer {
     private String password;
 
     private LocalDateTime createdAt;
+
+    @Column
+    @Convert(converter = CustomerAddressConverter.class)
+    private CustomerAddress customerAddress;
 
     @JsonIgnore
     @OneToMany(fetch = FetchType.LAZY)
