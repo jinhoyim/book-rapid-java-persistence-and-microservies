@@ -3,6 +3,7 @@ package book.apress.rapidjavapersistencemicroservice.ch04.eshop;
 import book.apress.rapidjavapersistencemicroservice.ch04.eshop.history.repository.PurchaseHistoryRepository;
 import book.apress.rapidjavapersistencemicroservice.ch04.eshop.orders.model.Customer;
 import book.apress.rapidjavapersistencemicroservice.ch04.eshop.orders.model.dto.CustomerDto;
+import book.apress.rapidjavapersistencemicroservice.ch04.eshop.orders.model.projection.CustomerProjection;
 import book.apress.rapidjavapersistencemicroservice.ch04.eshop.orders.repository.CustomerRepository;
 import book.apress.rapidjavapersistencemicroservice.ch04.eshop.orders.repository.OrderRepository;
 import book.apress.rapidjavapersistencemicroservice.ch04.eshop.service.impl.CustomerService;
@@ -54,6 +55,16 @@ public class EshopApplication implements CommandLineRunner {
 
         nPlusOneExample();
         constructorMappingExample();
+        projectionExample();
+    }
+
+    private void projectionExample() {
+        List<CustomerProjection> customers = customerRepository.findCustomers();
+        log.info("Customers List with Projections");
+        customers.forEach(customer -> log.info("Customer Name: {}", customer.getCustomerNameWithEmail()));
+
+        log.info("Find Single Customer: {}",
+                customerRepository.findByName("John Doe").getCustomerNameWithEmail());
     }
 
     private void constructorMappingExample() {
