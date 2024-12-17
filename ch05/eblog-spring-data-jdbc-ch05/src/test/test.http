@@ -1,0 +1,5 @@
+### GET eblog/posts
+GET http://localhost:8081/eblog/posts
+
+### GET eblog/authors
+GET http://localhost:8081/eblog/authors
