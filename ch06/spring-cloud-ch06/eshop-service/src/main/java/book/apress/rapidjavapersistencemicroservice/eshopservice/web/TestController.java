@@ -42,6 +42,9 @@ public class TestController {
 
         Order order = orderService.orderProduct();
         log.info("Order status: {}", Objects.isNull(order));
+        if (Objects.isNull(order)) {
+            return ResponseEntity.badRequest().body("Order is null");
+        }
         URI uri = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
@@ -56,6 +59,9 @@ public class TestController {
 
         Order order = orderServiceWithFeign.orderProduct();
         log.info("Order status: {}", Objects.isNull(order));
+        if (Objects.isNull(order)) {
+            return ResponseEntity.badRequest().body("Order is null");
+        }
         URI uri = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
@@ -70,6 +76,9 @@ public class TestController {
 
         Order order = orderServiceWithRestClient.orderProduct();
         log.info("Order status: {}", Objects.isNull(order));
+        if (Objects.isNull(order)) {
+            return ResponseEntity.badRequest().body("Order is null");
+        }
         URI uri = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")

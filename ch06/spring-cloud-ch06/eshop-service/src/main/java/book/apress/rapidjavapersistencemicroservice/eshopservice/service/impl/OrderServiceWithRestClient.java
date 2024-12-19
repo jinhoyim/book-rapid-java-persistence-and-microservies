@@ -3,8 +3,10 @@ package book.apress.rapidjavapersistencemicroservice.eshopservice.service.impl;
 import book.apress.rapidjavapersistencemicroservice.eshopservice.model.Order;
 import book.apress.rapidjavapersistencemicroservice.eshopservice.repository.OrderRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
@@ -29,13 +31,19 @@ public class OrderServiceWithRestClient {
         this.restClientBuilder = restClientBuilder;
     }
 
+    @CircuitBreaker(name = "orderService", fallbackMethod = "handleInventoryFailure")
     public Order orderProduct() {
         Order order = null;
         Map<String, Integer> map = null;
         ObjectMapper mapper = new ObjectMapper();
 
+        var factory = new HttpComponentsClientHttpRequestFactory();
+        factory.setConnectTimeout(1000);
+        factory.setReadTimeout(1000);
+
         String url = "http://INVENTORY-SERVICE/inventory/api/inventory/";
         String resultJson = restClientBuilder
+                .requestFactory(factory)
                 .build()
                 .get()
                 .uri(url + 1)
@@ -66,5 +74,10 @@ public class OrderServiceWithRestClient {
         order.setQuantity(quantity);
         order = orderRepository.save(order);
         return order;
+    }
+
+    private Order handleInventoryFailure(Throwable throwable) {
+        log.error("Cannot connect to inventory service");
+        return null;
     }
 }

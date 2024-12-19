@@ -3,17 +3,31 @@ package book.apress.rapidjavapersistencemicroservice.eshopservice.service.impl;
 import book.apress.rapidjavapersistencemicroservice.eshopservice.model.Order;
 import book.apress.rapidjavapersistencemicroservice.eshopservice.repository.OrderRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.timelimiter.TimeLimiter;
+import io.github.resilience4j.timelimiter.TimeLimiterConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Service
 @Slf4j
 public class OrderService {
+
+    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+
+    // @TimeLimiter는 CompletableFuture 반환하는 메서드에 사용할 수 있으므로 프로그래밍 코드로 처리한다.
+    private final TimeLimiter timeLimiter = TimeLimiter.of(TimeLimiterConfig.custom()
+            .timeoutDuration(Duration.ofSeconds(3))
+            .build());
 
     private final ProductService productService;
     private final OrderRepository orderRepository;
@@ -29,11 +43,23 @@ public class OrderService {
         this.restTemplate = restTemplate;
     }
 
+    @CircuitBreaker(name = "orderService", fallbackMethod = "handleInventoryFailure")
     public Order orderProduct() {
+        try {
+            return timeLimiter.executeFutureSupplier(() ->
+                    CompletableFuture.supplyAsync(this::getOrder, executorService));
+        } catch (Exception e) {
+          throw new RuntimeException("Timeout occurred", e);
+        }
+    }
+
+    private Order getOrder() {
         Order order = null;
         Map<String, Integer> map = null;
         ObjectMapper mapper = new ObjectMapper();
 
+        // 호출이 차단되면 로그가 출력되지 않는다.
+        log.info("call inventory service");
         String url = "http://INVENTORY-SERVICE/inventory/api/inventory/";
         String resultJson = restTemplate.getForObject(url + 1, String.class);
         try {
@@ -62,8 +88,8 @@ public class OrderService {
         return order;
     }
 
-    private Order handleInventoryFailure() {
-        log.error("Cannot connect to inventory service with 20% requests failing in 10 seconds interval");
+    private Order handleInventoryFailure(Throwable throwable) {
+        log.error("Cannot connect to inventory service");
         return null;
     }
 }
