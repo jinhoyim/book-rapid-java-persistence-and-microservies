@@ -4,7 +4,6 @@ import book.apress.rapidjavapersistencemicroservice.eshopservice.model.Order;
 import book.apress.rapidjavapersistencemicroservice.eshopservice.repository.OrderRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -18,17 +17,16 @@ public class OrderService {
 
     private final ProductService productService;
     private final OrderRepository orderRepository;
-
-    @Autowired
-    @LoadBalanced
-    RestTemplate restTemplate;
+    private final RestTemplate restTemplate;
 
     public OrderService(
             ProductService productService,
-            OrderRepository orderRepository
+            OrderRepository orderRepository,
+            @LoadBalanced RestTemplate restTemplate
     ) {
         this.productService = productService;
         this.orderRepository = orderRepository;
+        this.restTemplate = restTemplate;
     }
 
     public Order orderProduct() {
