@@ -1,10 +1,7 @@
 package book.apress.rapidjavapersistencemicroservice.eshopservice.web;
 
 import book.apress.rapidjavapersistencemicroservice.eshopservice.model.Order;
-import book.apress.rapidjavapersistencemicroservice.eshopservice.service.impl.CustomerService;
-import book.apress.rapidjavapersistencemicroservice.eshopservice.service.impl.OrderService;
-import book.apress.rapidjavapersistencemicroservice.eshopservice.service.impl.OrderServiceWithFeign;
-import book.apress.rapidjavapersistencemicroservice.eshopservice.service.impl.ProductService;
+import book.apress.rapidjavapersistencemicroservice.eshopservice.service.impl.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,6 +17,7 @@ public class TestController {
 
     private final OrderService orderService;
     private final OrderServiceWithFeign orderServiceWithFeign;
+    private final OrderServiceWithRestClient orderServiceWithRestClient;
     private final ProductService productService;
     private final CustomerService customerService;
 
@@ -27,12 +25,14 @@ public class TestController {
             OrderService orderService,
             ProductService productService,
             CustomerService customerService,
-            OrderServiceWithFeign orderServiceWithFeign
+            OrderServiceWithFeign orderServiceWithFeign,
+            OrderServiceWithRestClient orderServiceWithRestClient
     ) {
         this.orderService = orderService;
         this.productService = productService;
         this.customerService = customerService;
         this.orderServiceWithFeign = orderServiceWithFeign;
+        this.orderServiceWithRestClient = orderServiceWithRestClient;
     }
 
     @PostMapping(value = "/api/orders", produces = "application/json")
@@ -55,6 +55,20 @@ public class TestController {
         productService.registerNewProducts();
 
         Order order = orderServiceWithFeign.orderProduct();
+        log.info("Order status: {}", Objects.isNull(order));
+        URI uri = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(order.getOrderId()).toUri();
+        return ResponseEntity.created(uri).build();
+    }
+
+    @PostMapping(value = "/api/orders-with-rest-client", produces = "application/json")
+    public ResponseEntity<?> purchaseSampleProductWithRestClient() {
+        customerService.registerNewCustomers();
+        productService.registerNewProducts();
+
+        Order order = orderServiceWithRestClient.orderProduct();
         log.info("Order status: {}", Objects.isNull(order));
         URI uri = ServletUriComponentsBuilder
                 .fromCurrentRequest()
