@@ -5,7 +5,10 @@ import book.apress.rapidjavapersistencemicroservice.inventoryservice.service.Inv
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Map;
 
 @RestController
 @Slf4j
@@ -18,7 +21,8 @@ public class InventoryController {
     }
 
     @GetMapping("/api/inventory/{productId}")
-    public Inventory getInventory(@PathVariable("productId") Long productId) {
+    public Inventory getInventory(@PathVariable("productId") Long productId,
+                                  @RequestHeader Map<String, String> headers) {
         log.info("Inventory request for product: {}", productId);
         Inventory inventory = inventoryService.getInventory(productId);
         log.info("Inventory: {}", inventory);

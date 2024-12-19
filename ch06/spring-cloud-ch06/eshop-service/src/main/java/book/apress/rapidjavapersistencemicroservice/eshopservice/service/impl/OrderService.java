@@ -2,6 +2,8 @@ package book.apress.rapidjavapersistencemicroservice.eshopservice.service.impl;
 
 import book.apress.rapidjavapersistencemicroservice.eshopservice.model.Order;
 import book.apress.rapidjavapersistencemicroservice.eshopservice.repository.OrderRepository;
+
+import brave.Tracing;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.timelimiter.TimeLimiter;
@@ -22,7 +24,7 @@ import java.util.concurrent.Executors;
 @Slf4j
 public class OrderService {
 
-    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private final ExecutorService executorService;
 
     // @TimeLimiter는 CompletableFuture 반환하는 메서드에 사용할 수 있으므로 프로그래밍 코드로 처리한다.
     private final TimeLimiter timeLimiter = TimeLimiter.of(TimeLimiterConfig.custom()
@@ -36,11 +38,15 @@ public class OrderService {
     public OrderService(
             ProductService productService,
             OrderRepository orderRepository,
-            @LoadBalanced RestTemplate restTemplate
+            @LoadBalanced RestTemplate restTemplate,
+            Tracing tracing
     ) {
         this.productService = productService;
         this.orderRepository = orderRepository;
         this.restTemplate = restTemplate;
+        executorService = tracing.currentTraceContext().executorService(
+                Executors.newSingleThreadExecutor()
+        );
     }
 
     @CircuitBreaker(name = "orderService", fallbackMethod = "handleInventoryFailure")
