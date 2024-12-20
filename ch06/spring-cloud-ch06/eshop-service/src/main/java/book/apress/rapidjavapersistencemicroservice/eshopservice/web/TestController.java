@@ -2,7 +2,12 @@ package book.apress.rapidjavapersistencemicroservice.eshopservice.web;
 
 import book.apress.rapidjavapersistencemicroservice.eshopservice.model.Order;
 import book.apress.rapidjavapersistencemicroservice.eshopservice.service.impl.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -35,6 +40,16 @@ public class TestController {
         this.orderServiceWithRestClient = orderServiceWithRestClient;
     }
 
+    @Operation(summary = "Order a product", responses = {
+            @ApiResponse(description = "Order created successfully",
+                    responseCode = "201",
+                    content = @Content(schema = @Schema(implementation = Order.class))
+            ),
+            @ApiResponse(description = "Invalid request",
+                    responseCode = "400",
+                    content = @Content(schema = @Schema(implementation = String.class))
+            )
+    })
     @PostMapping(value = "/api/orders", produces = "application/json")
     public ResponseEntity<?> purchaseSampleProduct() {
         customerService.registerNewCustomers();
@@ -49,7 +64,7 @@ public class TestController {
                 .fromCurrentRequest()
                 .path("/{id}")
                 .buildAndExpand(order.getOrderId()).toUri();
-        return ResponseEntity.created(uri).build();
+        return ResponseEntity.created(uri).body(order);
     }
 
     @PostMapping(value = "/api/orders-with-feign", produces = "application/json")
