@@ -12,13 +12,13 @@ spring:
           filters:
             - PreserveHostHeader
         - id: eshop
-          uri: http://localhost:8081
+          uri: lb://ESHOP-SERVICE
           predicates:
             - Path=/eshop/**
           filters:
             - PreserveHostHeader
         - id: inventory
-          uri: http://localhost:8082
+          uri: lb://INVENTORY-SERVICE
           predicates:
             - Path=/inventory/**
           filters:
@@ -47,6 +47,15 @@ spring:
       httpclient:
         connect-timeout: 1000
         response-timeout: 5s
+
+eureka:
+  instance:
+    hostname: localhost
+    preferIpAddress: false
+  client:
+    serviceUrl:
+      defaultZone: ${EUREKA_URI:http://localhost:8761/eureka}
+
 #logging:
 #  level:
 #    org.springframework.cloud.gateway: DEBUG
