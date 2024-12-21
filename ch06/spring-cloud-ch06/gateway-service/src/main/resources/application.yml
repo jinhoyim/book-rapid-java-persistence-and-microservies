@@ -1,0 +1,52 @@
+spring:
+  application:
+    name: gateway-service
+
+  cloud:
+    gateway:
+      routes:
+        - id: config
+          uri: http://localhost:8888
+          predicates:
+            - Path=/config/**
+          filters:
+            - PreserveHostHeader
+        - id: eshop
+          uri: http://localhost:8081
+          predicates:
+            - Path=/eshop/**
+          filters:
+            - PreserveHostHeader
+        - id: inventory
+          uri: http://localhost:8082
+          predicates:
+            - Path=/inventory/**
+          filters:
+            - PreserveHostHeader
+        - id: admin
+          uri: http://localhost:7777
+          predicates:
+            - Path=/admin/**
+          filters:
+            - PreserveHostHeader # 게이트웨이로 들어온 요청의 Host 헤더 값을 유지. HTML을 반환할 때 <base href>에 영향을 준다.
+            - RewriteLocationResponseHeader=AS_IN_REQUEST, Location, , # 응답 Location 경로를 게이트웨이 값으로 변경
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: 'http://localhost:8080'
+            allowedMethods:
+              - GET
+              - POST
+              - DELETE
+              - PUT
+              - OPTIONS
+            allowCredentials: true
+            maxAge: 30
+      x-forwarded:
+        for-append: true
+      httpclient:
+        connect-timeout: 1000
+        response-timeout: 5s
+#logging:
+#  level:
+#    org.springframework.cloud.gateway: DEBUG
