@@ -30,7 +30,7 @@ public class PostController {
             @Argument int limit,
             @Argument int offset,
             @Argument String orderBy) {
-        PageRequest pageRequest = PageRequest.of(limit, offset, Sort.Direction.DESC, orderBy);
+        PageRequest pageRequest = PageRequest.of(offset / limit, limit, Sort.Direction.DESC, orderBy);
         return postRepository.findAll(pageRequest).getContent();
     }
 
