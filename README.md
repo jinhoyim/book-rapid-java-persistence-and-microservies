@@ -7,7 +7,9 @@
 
 스프링 부트3 기준으로 Spring Cloud 부분에 변경되거나 대체할 내용이 좀 있었다.
  - Sleuth -> Micrometer Tracing Brave
- - Hystrix -> Resilience4J   
+ - Hystrix -> Resilience4J
+ - Netflix Zuul -> Spring Cloud Gateway Reactive Server   
+ 
 
 또한 책에서 다룬 도구는 과거에 많이 사용되었던 도구로 점유율이 다른 도구로 넘어간 것들도 있으니 참고해서 봐야 한다.
 
